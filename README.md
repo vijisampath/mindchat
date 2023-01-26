@@ -23,7 +23,7 @@ Run the container with port mapping and environment variables pass-through.
 ```bash
 export FACEBOOK_WEBHOOK_VERIFY_TOKEN=mindvalleychatbot
 export SECRET_KEY_BASE=gCEvRyAfve0o49uy1abgkmvvp539d8bV9hevU0D7bk1Qegks8nKJDK2ZexItZu5W
-export FACEBOOK_PAGE_ACCESS_TOKEN=EAARq4Cea5tEBAEvRKZCcCiHH58k2lnvN1mta4Ow3jZBlKntKyZCm8m08jPYP2Gtu1u5T2FIm89FGDo4XAMbQkhqY3ZCVV4TIuQXr4ozRIYHZCJOUT6do7MgPLksl7h3c5II931t9PhtgFtZAH8fP0khvDp031kGhIMZBl2KaV5NAYK8gavUQwOaL1ZCTXD2wHrwZD
+export FACEBOOK_PAGE_ACCESS_TOKEN=<<your_page_access_token_given_by_facebook_in_step_4>>
 
 docker run -p 4000:4000 -e FACEBOOK_PAGE_ACCESS_TOKEN -e FACEBOOK_WEBHOOK_VERIFY_TOKEN -e SECRET_KEY_BASE vijlaks/mindchat:v1
 ```
@@ -70,12 +70,51 @@ Set the environment variables and start the server.
 ```bash
 export FACEBOOK_WEBHOOK_VERIFY_TOKEN=mindvalleychatbot
 export SECRET_KEY_BASE=gCEvRyAfve0o49uy1abgkmvvp539d8bV9hevU0D7bk1Qegks8nKJDK2ZexItZu5W
-export FACEBOOK_PAGE_ACCESS_TOKEN=EAARq4Cea5tEBAEvRKZCcCiHH58k2lnvN1mta4Ow3jZBlKntKyZCm8m08jPYP2Gtu1u5T2FIm89FGDo4XAMbQkhqY3ZCVV4TIuQXr4ozRIYHZCJOUT6do7MgPLksl7h3c5II931t9PhtgFtZAH8fP0khvDp031kGhIMZBl2KaV5NAYK8gavUQwOaL1ZCTXD2wHrwZD
+export FACEBOOK_PAGE_ACCESS_TOKEN=<<your_page_access_token_given_by_facebook_in_step_4>>
 
 mindchat_app/bin/server
 ```
 
 > Note: Ensure that port 4000 is accessible through the firewall from external networks through a static IP or URL.
+
+## IMPORTANT: Setting up Webhooks properly
+
+1. Create a new Facebook [app](https://developers.facebook.com/apps/create/).
+
+2. After app creation set up Messenger by clicking on `Set up`.
+
+3. In Messenger settings, create a new page or add an existing page.
+
+4. Go back to Messenger Settings page and generate access token with `Generate token` button and copy the token generated.
+
+5. In your server, export the access token and a webhook token by adding lines like the following to the end of .bashrc or to your os specific profile.
+
+```bash
+export SECRET_KEY_BASE=<provide_a_secret_key_base>
+export FACEBOOK_WEBHOOK_VERIFY_TOKEN=<provide_a_webhook_token_string>
+export FACEBOOK_PAGE_ACCESS_TOKEN=<your_page_access_token_given_by_facebook_in_step_4>
+```
+
+6. Start your mindchat server after exporting the required environment variables
+
+```bash
+source ~/.bashrc
+docker run -p 4000:4000 -e FACEBOOK_PAGE_ACCESS_TOKEN -e FACEBOOK_WEBHOOK_VERIFY_TOKEN -e SECRET_KEY_BASE vijlaks/mindchat:v1
+```
+
+7. Back in the Messenger Settings page, click `Add Callback URL` in webhook section and enter the Callback URL thats got by appending `/api/facebook_webhook` to your app server endpoint. Example: `https://mindchat.pagekite.me/api/facebook_webhook`. Also provide verify token that you created in step 5 and click `Verify and save`.
+
+8. In Webhooks section click on `Add subscriptions` and subscribe to *messages*, *messaging_postbacks*, *messaging_optins*, *messaging_optouts* and *message_deliveries*.
+
+9. Initialize Messenger welcome page using the following curl command, after substituting the facebook page access token in the command.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "get_started": {"payload": "welcome"}
+}' "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=<your_page_access_token_given_by_facebook_in_step_4>"
+```
+
+> NOTE: Only after completing step 9, when you open the Messenger on your facebook page, `Get started` button will appear. And when you click it, "welcome" postback handler of our app server is invoked and the chatbot starts and the conversation can happen.
 
 ## Hope you like the demo !
 

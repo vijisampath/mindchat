@@ -25,7 +25,7 @@ defmodule Mindchat.WelcomeTemplate do
 
   defp template(greeting) do
       %{
-      "greeting" => greeting,
+      "get_started" => greeting,
       }
   end
 

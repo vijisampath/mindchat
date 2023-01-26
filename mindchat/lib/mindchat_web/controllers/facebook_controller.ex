@@ -20,16 +20,10 @@ alias Mindchat.{Bot, WelcomeTemplate, Mindchatbot}
         |> put_resp_content_type("application/json")
         |> resp(403, Jason.encode!(%{status: "error", message: "unauthorized"}))
     end
-
-    case  WelcomeTemplate.welcome()|> Bot.send_profile() do
-        {:ok, response} -> conn |> put_resp_content_type("application/json")|> put_status(200)|> json(%{success: "ok"})
-        {:error, error} ->conn |> put_resp_content_type("application/json") |>put_status(404)|>  json( %{errors: error})
-    end
-
-    case  WelcomeTemplate.greeting() |> Bot.send_profile() do
-        {:ok, response} -> conn |> put_resp_content_type("application/json")|> put_status(200)|> json(%{success: "ok"})
-        {:error, error} ->conn |> put_resp_content_type("application/json") |>put_status(404)|>  json( %{errors: error})
-    end
+    #case  WelcomeTemplate.welcome()|> Bot.send_profile() do
+    #    {:ok, response} -> conn |> put_resp_content_type("application/json")|> put_status(200)|> json(%{success: "ok"})
+    #    {:error, error} ->conn |> put_resp_content_type("application/json") |>put_status(404)|>  json( %{errors: error})
+    #end
   end
 
 
