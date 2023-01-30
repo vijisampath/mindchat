@@ -16,18 +16,14 @@ defmodule Mindchat.GeckoApi do
   end
 
   defp get(url) do
-  case HTTPoison.get(url) do
-    {:ok, response} ->
-      if response.status_code==429 do
-        {:error, "You've exceeded the Rate Limit. Please visit https://www.coingecko.com/en/api/pricing to subscribe to our API plans for higher rate limits."}
-      else
-        {:ok, Poison.decode!(response.body)}
-      end
-    {:error, error} ->
-      {:error, error}
-      end
+    header = [{"User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"}, {"Connection", "keep-alive"}, {"Accept-Language", "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2"}]
+    response = HTTPoison.get!(url, header)
+    case response.status_code do
+      200 -> {:ok, Poison.decode!(response.body)}
+      429 -> {:error, "API Rate Limit exceeded. Please try again after some time or purchase a Coin Gecko subscription."}
+      _ -> {:error, "Unknown Error from Coin Gecko API URL: #{url}"}
+    end
   end
-
 
   def get_api_params(api_path,params \\%{}) do
     query_params = URI.encode_query(params)
